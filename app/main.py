@@ -1,26 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import psycopg2
-from  psycopg2.extras import RealDictCursor
-import time
 from . import models
 from .db import engine
-from .routes import teacher, school, auth
+from .routes import teacher, school, auth, student, subject, temp, admin
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-
-while True:
-    try:
-        conn = psycopg2.connect(host='localhost', database='round_track_database', user='postgres',
-                         password='Jie10000', cursor_factory=RealDictCursor)
-        cursor = conn.cursor()
-        print("Connected to the database successfully...")
-        break
-    except Exception as error:
-        print("Error connecting to the database", error)
-        time.sleep(5)
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,7 +18,11 @@ app.add_middleware(
 
 app.include_router(teacher.router)
 app.include_router(school.router)
+app.include_router(student.router)
+app.include_router(subject.router)
+app.include_router(temp.router)
 app.include_router(auth.router)
+app.include_router(admin.router)
 
 @app.get("/")
 async def root():
